@@ -11,7 +11,7 @@
 #include <atomic>
 
 #include "poi.h"
-
+#include "filter.h"
 
 class poly_map
 {
@@ -31,20 +31,18 @@ public:
 	coord poly_position(poly_id poly_id);
 };
 
-bool poi_filter(const osmium::TagList &tags);
-
 
 class node_handler : public osmium::handler::Handler
 {
 	std::ostream &outfile_;
+	const filter &filter_;
 	uint64_t counter_ = 0;
 
 public:
-	explicit node_handler(std::ostream &outfile);
+	explicit node_handler(std::ostream &outfile, const filter &filter);
 	void node(const osmium::Node &node);
 	uint64_t counter() const;
 };
-
 
 class poly_node_handler : public osmium::handler::Handler
 {
@@ -55,25 +53,25 @@ public:
 	void node(const osmium::Node &node);
 };
 
-
 class way_preprocessor : public osmium::handler::Handler
 {
 	poly_map &poly_map_;
+	const filter &filter_;
 
 public:
-	explicit way_preprocessor(poly_map &poly_map);
+	explicit way_preprocessor(poly_map &poly_map, const filter &filter);
 	void way(const osmium::Way &way);
 };
-
 
 class way_handler : public osmium::handler::Handler
 {
 	std::ostream &outfile_;
 	poly_map &poly_map_;
+	const filter &filter_;
 	uint64_t counter_ = 0;
 
 public:
-	explicit way_handler(std::ostream &outfile, poly_map &poly_map);
+	explicit way_handler(std::ostream &outfile, poly_map &poly_map, const filter &filter);
 	void way(const osmium::Way &way);
 	uint64_t counter() const;
 };

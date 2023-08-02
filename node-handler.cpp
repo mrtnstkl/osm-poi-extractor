@@ -5,7 +5,6 @@
 
 #include "poi.h"
 
-
 poly_map::poly_id poly_map::new_poly(const osmium::WayNodeList &node_ref_list)
 {
 	const poly_id id = poly_counter_++;
@@ -31,24 +30,14 @@ coord poly_map::poly_position(poly_id poly_id)
 	return coordinates_.find(poly_id)->second.get();
 }
 
-bool poi_filter(const osmium::TagList &tags)
-{
-	if (!tags["name"])
-		return false;
-	//if (!tags["tourism"] || strcmp(tags["tourism"], "alpine_hut"))
-	if (!tags["tourism"] && !tags["amenity"] && !tags["natural"])
-		return false;
-	return true;
-}
-
-node_handler::node_handler(std::ostream &outfile)
-	: outfile_(outfile)
+node_handler::node_handler(std::ostream &outfile, const filter &filter)
+	: outfile_(outfile), filter_(filter)
 {
 }
 
 void node_handler::node(const osmium::Node &node)
 {
-	if (!poi_filter(node.tags()))
+	if (!filter_.check(node.tags()))
 		return;
 	poi poi(node.tags()["name"], node.location().lat(), node.location().lon());
 	poi.set_tags(node.tags());
@@ -71,26 +60,26 @@ void poly_node_handler::node(const osmium::Node &node)
 	poly_map_.process_node(node);
 }
 
-way_preprocessor::way_preprocessor(poly_map &poly_map)
-	: poly_map_(poly_map)
+way_preprocessor::way_preprocessor(poly_map &poly_map, const filter &filter)
+	: poly_map_(poly_map), filter_(filter)
 {
 }
 
 void way_preprocessor::way(const osmium::Way &way)
 {
-	if (!poi_filter(way.tags()))
+	if (!filter_.check(way.tags()))
 		return;
 	poly_map_.new_poly(way.nodes());
 }
 
-way_handler::way_handler(std::ostream &outfile, poly_map &poly_map)
-	: outfile_(outfile), poly_map_(poly_map)
+way_handler::way_handler(std::ostream &outfile, poly_map &poly_map, const filter &filter)
+	: outfile_(outfile), poly_map_(poly_map), filter_(filter)
 {
 }
 
 void way_handler::way(const osmium::Way &way)
 {
-	if (!poi_filter(way.tags()))
+	if (!filter_.check(way.tags()))
 		return;
 
 	auto coord = poly_map_.poly_position(poly_map_.get_poly_id(way.nodes().front().ref()));
