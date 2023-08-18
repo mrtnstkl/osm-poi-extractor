@@ -6,10 +6,10 @@ class filter
 {
 	using key = std::string;
 	using value = std::string;
-	using kv = std::pair<key, value>;
-	using conjunct = std::vector<kv>;
+	using tag = std::pair<key, value>;
+	using rule = std::vector<tag>;
 
-	std::vector<conjunct> dnf_;
+	std::vector<rule> rule_list_;
 
 public:
 	static filter parse_args(int argc, char *argv[]);

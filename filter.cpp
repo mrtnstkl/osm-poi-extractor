@@ -5,7 +5,7 @@
 filter filter::parse_args(int argc, char *argv[])
 {
 	filter filter;
-	conjunct conj;
+	rule rule;
 	bool join = true;
 
 	for (int i = 0; i < argc; i++)
@@ -17,27 +17,27 @@ filter filter::parse_args(int argc, char *argv[])
 			join = true;
 			continue;
 		}
-		if (!conj.empty() && !join)
+		if (!rule.empty() && !join)
 		{
-			filter.dnf_.push_back(std::move(conj));
-			conj = conjunct();
+			filter.rule_list_.push_back(std::move(rule));
+			rule = filter::rule();
 		}
 		join = false;
 
 		auto dot = arg.find('.');
 		if (dot == std::string::npos)
 		{
-			conj.push_back({arg, std::string()});
+			rule.push_back({arg, std::string()});
 		}
 		else
 		{
-			conj.push_back({arg.substr(0, dot), arg.substr(dot + 1)});
+			rule.push_back({arg.substr(0, dot), arg.substr(dot + 1)});
 		}
 	}
 
-	if (!conj.empty())
+	if (!rule.empty())
 	{
-		filter.dnf_.push_back(std::move(conj));
+		filter.rule_list_.push_back(std::move(rule));
 	}
 
 	return filter;
@@ -48,19 +48,19 @@ bool filter::check(const osmium::TagList &tags) const
 	if (!tags["name"])
 		return false;
 
-	for (const auto &conj : dnf_)
+	for (const auto &rule : rule_list_)
 	{
 		uint satisfied = 0;
-		for (const auto &kv : conj)
+		for (const auto &tag : rule)
 		{
-			const char *tag_value = tags[kv.first.c_str()];
+			const char *tag_value = tags[tag.first.c_str()];
 			if (tag_value == nullptr)
 				continue;
-			if (!kv.second.empty() && kv.second != tag_value)
+			if (!tag.second.empty() && tag.second != tag_value)
 				continue;
 			++satisfied;
 		}
-		if (satisfied == conj.size())
+		if (satisfied == rule.size())
 			return true;
 	}
 	return false;
@@ -70,10 +70,10 @@ void filter::print(std::ostream &out) const
 {
 	out << "At least one of the following rules must be satisfied:\n";
 	int i = 1;
-	for (const auto &conj : dnf_)
+	for (const auto &rule : rule_list_)
 	{
 		out << "   Rule " << i++ << ':';
-		for (const auto &kv : conj)
+		for (const auto &kv : rule)
 			out << ' ' << kv.first << '=' << (kv.second.empty() ? "*" : kv.second);
 		out << '\n';
 	}
