@@ -31,18 +31,40 @@ public:
 	coord poly_position(poly_id poly_id);
 };
 
-
-class node_handler : public osmium::handler::Handler
+template <typename Formatter>
+class custom_node_handler : public osmium::handler::Handler
 {
 	std::ostream &outfile_;
 	const filter &filter_;
 	uint64_t counter_ = 0;
 
 public:
-	explicit node_handler(std::ostream &outfile, const filter &filter);
-	void node(const osmium::Node &node);
-	uint64_t counter() const;
+	explicit custom_node_handler(std::ostream &outfile, const filter &filter)
+		: outfile_(outfile), filter_(filter)
+	{
+	}
+
+	void node(const osmium::Node &node)
+	{
+		if (!filter_.check(node.tags()))
+			return;
+		outfile_ << Formatter::format(node) << '\n';
+		++counter_;
+	}
+
+	uint64_t counter() const
+	{
+		return counter_;
+	}
 };
+
+class default_formatter
+{
+public:
+	static std::string format(const osmium::Node &node);
+};
+
+using node_handler = custom_node_handler<default_formatter>;
 
 class poly_node_handler : public osmium::handler::Handler
 {

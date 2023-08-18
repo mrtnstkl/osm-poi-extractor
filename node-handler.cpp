@@ -30,24 +30,11 @@ coord poly_map::poly_position(poly_id poly_id)
 	return coordinates_.find(poly_id)->second.get();
 }
 
-node_handler::node_handler(std::ostream &outfile, const filter &filter)
-	: outfile_(outfile), filter_(filter)
+std::string default_formatter::format(const osmium::Node &node)
 {
-}
-
-void node_handler::node(const osmium::Node &node)
-{
-	if (!filter_.check(node.tags()))
-		return;
 	poi poi(node.tags()["name"], node.location().lat(), node.location().lon());
 	poi.set_tags(node.tags());
-	outfile_ << poi.string() << '\n';
-	++counter_;
-}
-
-uint64_t node_handler::counter() const
-{
-	return counter_;
+	return poi.string();
 }
 
 poly_node_handler::poly_node_handler(poly_map &poly_map)
