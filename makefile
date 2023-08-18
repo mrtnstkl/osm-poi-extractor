@@ -1,6 +1,6 @@
 CXX = g++
 CXXFLAGS = -std=c++2a -Wall -Wextra -O3
-LDFLAGS = -lz -llz4 -lpthread -lexpat -lbz2
+LDFLAGS = -lz -lpthread -lexpat -lbz2
 SRC = $(wildcard *.cpp)
 OBJ = $(SRC:.cpp=.o)
 TARGET = poi_extract
