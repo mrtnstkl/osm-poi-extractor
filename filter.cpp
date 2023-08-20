@@ -47,6 +47,8 @@ bool filter::check(const osmium::TagList &tags) const
 {
 	if (!tags["name"])
 		return false;
+	if (rule_list_.empty())
+		return true;
 
 	for (const auto &rule : rule_list_)
 	{

@@ -20,7 +20,7 @@ void process(osmium::io::File &file, T &...handlers)
 
 int main(int argc, char *argv[])
 {
-	if (argc <= 3)
+	if (argc < 3)
 	{
 		std::cerr << "Usage: " << argv[0] << " INFILE OUTFILE [FILTERS...]\n"
 				  << "Example: ./poi_extract austria-latest.osm.pbf out.txt tourism.alpine_hut + phone natural.peak + summit:cross.yes\n";
