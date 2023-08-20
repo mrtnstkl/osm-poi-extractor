@@ -48,7 +48,7 @@ public:
 	{
 		if (!filter_.check(node.tags()))
 			return;
-		outfile_ << Formatter::format(node) << '\n';
+		outfile_ << Formatter::node(node) << '\n';
 		++counter_;
 	}
 
@@ -61,7 +61,8 @@ public:
 class default_formatter
 {
 public:
-	static std::string format(const osmium::Node &node);
+	static std::string node(const osmium::Node &node);
+	static std::string way(const osmium::Way &way, coord coordinates);
 };
 
 using node_handler = custom_node_handler<default_formatter>;
@@ -85,7 +86,8 @@ public:
 	void way(const osmium::Way &way);
 };
 
-class way_handler : public osmium::handler::Handler
+template <typename Formatter>
+class custom_way_handler : public osmium::handler::Handler
 {
 	std::ostream &outfile_;
 	poly_map &poly_map_;
@@ -93,7 +95,25 @@ class way_handler : public osmium::handler::Handler
 	uint64_t counter_ = 0;
 
 public:
-	explicit way_handler(std::ostream &outfile, poly_map &poly_map, const filter &filter);
-	void way(const osmium::Way &way);
-	uint64_t counter() const;
+	explicit custom_way_handler(std::ostream &outfile, poly_map &poly_map, const filter &filter)
+		: outfile_(outfile), poly_map_(poly_map), filter_(filter)
+	{
+	}
+
+	void way(const osmium::Way &way)
+	{
+		if (!filter_.check(way.tags()))
+			return;
+
+		auto coord = poly_map_.poly_position(poly_map_.get_poly_id(way.nodes().front().ref()));
+		outfile_ << Formatter::way(way, coord) << '\n';
+		++counter_;
+	}
+
+	uint64_t counter() const
+	{
+		return counter_;
+	}
 };
+
+using way_handler = custom_way_handler<default_formatter>;

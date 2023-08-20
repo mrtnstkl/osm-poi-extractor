@@ -30,10 +30,17 @@ coord poly_map::poly_position(poly_id poly_id)
 	return coordinates_.find(poly_id)->second.get();
 }
 
-std::string default_formatter::format(const osmium::Node &node)
+std::string default_formatter::node(const osmium::Node &node)
 {
 	poi poi(node.tags()["name"], node.location().lat(), node.location().lon());
 	poi.set_tags(node.tags());
+	return poi.string();
+}
+
+std::string default_formatter::way(const osmium::Way &way, coord coordinates)
+{
+	poi poi(way.tags()["name"], coordinates.lat, coordinates.lon);
+	poi.set_tags(way.tags());
 	return poi.string();
 }
 
@@ -57,27 +64,4 @@ void way_preprocessor::way(const osmium::Way &way)
 	if (!filter_.check(way.tags()))
 		return;
 	poly_map_.new_poly(way.nodes());
-}
-
-way_handler::way_handler(std::ostream &outfile, poly_map &poly_map, const filter &filter)
-	: outfile_(outfile), poly_map_(poly_map), filter_(filter)
-{
-}
-
-void way_handler::way(const osmium::Way &way)
-{
-	if (!filter_.check(way.tags()))
-		return;
-
-	auto coord = poly_map_.poly_position(poly_map_.get_poly_id(way.nodes().front().ref()));
-
-	poi poi(way.tags()["name"], coord.lat, coord.lon);
-	poi.set_tags(way.tags());
-	outfile_ << poi.string() << '\n';
-	++counter_;
-}
-
-uint64_t way_handler::counter() const
-{
-	return counter_;
 }

@@ -5,6 +5,7 @@
 A POI extractor for OpenStreetMap data. It reads in a PBF file, filters it based on criteria given as command line arguments, and outputs the relevant POIs to a text file.
 
 Requires [Osmium](https://osmcode.org/libosmium/) for extracting OSM data.
+
 Uses [nlohmann::json](https://github.com/nlohmann/json) for JSON serialization (included).
 
 ### Usage
@@ -38,4 +39,4 @@ By default, the output file will have a JSON object on every line, each represen
 ...
 ```
 
-You can change this by modifying the `default_formatter::format` function in `node-handler.cpp`, or by using a `custom_node_handler<your_formatter_here>` in the main function instead of `node_handler`.
+You can change this by modifying the `default_formatter` implementation in `node-handler.cpp`, or by using a `custom_node_handler` and `custom_way_handler` in the main function.
