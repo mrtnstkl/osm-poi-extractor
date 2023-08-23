@@ -4,9 +4,24 @@
 
 A POI extractor for OpenStreetMap data. It reads in a PBF file, filters it based on criteria given as command line arguments, and outputs the relevant POIs to a text file.
 
-Requires [Osmium](https://osmcode.org/libosmium/) for extracting OSM data.
+Requires [Osmium](https://osmcode.org/libosmium/) for extracting OSM data.  
+Uses [nlohmann/json](https://github.com/nlohmann/json) for JSON serialization (included).
 
-Uses [nlohmann::json](https://github.com/nlohmann/json) for JSON serialization (included).
+### Installation
+
+1. install [libosmium](https://osmcode.org/libosmium/) (packages available for Debian, Ubuntu, Fedora, Arch)
+2. clone this repo
+3. run make
+
+Debian/Ubuntu:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y libosmium2-dev
+git clone https://github.com/mrtnstkl/osm-poi-extractor.git
+cd osm-poi-extractor
+make
+```
 
 ### Usage
 
