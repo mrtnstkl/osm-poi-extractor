@@ -70,6 +70,11 @@ bool filter::check(const osmium::TagList &tags) const
 
 void filter::print(std::ostream &out) const
 {
+	if (rule_list_.empty())
+	{
+		out << "Using empty filter" << std::endl;
+		return;
+	}
 	out << "At least one of the following rules must be satisfied:\n";
 	int i = 1;
 	for (const auto &rule : rule_list_)
@@ -77,6 +82,6 @@ void filter::print(std::ostream &out) const
 		out << "   Rule " << i++ << ':';
 		for (const auto &kv : rule)
 			out << ' ' << kv.first << '=' << (kv.second.empty() ? "*" : kv.second);
-		out << '\n';
+		out << std::endl;
 	}
 }
