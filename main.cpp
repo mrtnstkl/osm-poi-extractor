@@ -27,11 +27,25 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
+	std::ofstream outfile(argv[2]);
+	if (!outfile.is_open())
+	{
+		std::cerr << "Failed to open output file" << std::endl;
+		return 1;
+	}
+	osmium::io::File infile(argv[1]);
+	try
+	{
+		infile.check();
+	}
+	catch (const std::exception& e)
+	{
+		std::cerr << "Failed to open input file: " << e.what() << '\n';
+		return 1;
+	}
+
 	auto filter = filter::parse_args(argc - 3, argv + 3);
 	filter.print(std::cout);
-
-	std::ofstream outfile(argv[2]);
-	osmium::io::File infile(argv[1]);
 
 	poly_map poly_map;
 
