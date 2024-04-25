@@ -1,6 +1,7 @@
 #pragma once
 
 #include <osmium/osm/tag.hpp>
+#include <vector>
 
 class filter
 {
@@ -12,7 +13,7 @@ class filter
 	std::vector<rule> rule_list_;
 
 public:
-	static filter parse_args(int argc, char *argv[]);
+	static filter parse_args(const std::vector<std::string>& args);
 	bool check(const osmium::TagList &tags) const;
 	void print(std::ostream &out) const;
 };

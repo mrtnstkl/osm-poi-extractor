@@ -1,17 +1,16 @@
 #include "filter.h"
 
 #include <iostream>
+#include <vector>
 
-filter filter::parse_args(int argc, char *argv[])
+filter filter::parse_args(const std::vector<std::string>& args)
 {
 	filter filter;
 	rule rule;
 	bool join = true;
 
-	for (int i = 0; i < argc; i++)
+	for (const auto& arg : args)
 	{
-		std::string arg(argv[i]);
-
 		if (arg == "+")
 		{
 			join = true;
@@ -24,7 +23,7 @@ filter filter::parse_args(int argc, char *argv[])
 		}
 		join = false;
 
-		auto dot = arg.find('.');
+		const auto dot = arg.find('.');
 		if (dot == std::string::npos)
 		{
 			rule.push_back({arg, std::string()});

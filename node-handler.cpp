@@ -1,7 +1,4 @@
 #include "node-handler.h"
-#include <iostream>
-
-#include "json.hpp"
 
 #include "poi.h"
 

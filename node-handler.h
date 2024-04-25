@@ -105,7 +105,7 @@ public:
 		if (!filter_.check(way.tags()))
 			return;
 
-		auto coord = poly_map_.poly_position(poly_map_.get_poly_id(way.nodes().front().ref()));
+		const auto coord = poly_map_.poly_position(poly_map_.get_poly_id(way.nodes().front().ref()));
 		outfile_ << Formatter::way(way, coord) << '\n';
 		++counter_;
 	}

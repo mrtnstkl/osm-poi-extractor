@@ -5,10 +5,12 @@
 
 #include <iostream>
 #include <fstream>
+#include <vector>
 
 #include "node-handler.h"
-#include "poi.h"
 #include "filter.h"
+
+#define PRINT_USAGE(argv0) std::cerr << "Usage: " << argv0 << " INFILE OUTFILE [-p | -a] [FILTERS...]" << std::endl
 
 template <typename... T>
 void process(osmium::io::File &file, T &...handlers)
@@ -22,10 +24,31 @@ int main(int argc, char *argv[])
 {
 	if (argc < 3)
 	{
-		std::cerr << "Usage: " << argv[0] << " INFILE OUTFILE [FILTERS...]\n"
-				  << "Example: ./poi_extract austria-latest.osm.pbf out.txt tourism.alpine_hut + phone natural.peak + summit:cross.yes\n";
+		PRINT_USAGE(argv[0]);
+		std::cerr << "Example: ./poi_extract austria-latest.osm.pbf out.txt tourism.alpine_hut + phone natural.peak + summit:cross.yes\n";
 		return 1;
 	}
+
+	std::vector<std::string> filter_args;
+	bool process_ways = false, process_nodes = false;
+	for (int i = 3; i < argc; ++i)
+	{
+		std::string arg(argv[i]);
+		if (arg == "-a")
+			process_ways = true;
+		else if (arg == "-p")
+			process_nodes = true;
+		else if (arg[0] == '-')
+		{
+			std::cerr << "Invalid argument \"" << arg << '"' << std::endl;
+			PRINT_USAGE(argv[0]);
+			return 1;
+		}
+		else
+			filter_args.push_back(arg);
+	}
+	if (!process_ways && !process_nodes)
+		process_nodes = process_ways = true;
 
 	std::ofstream outfile(argv[2]);
 	if (!outfile.is_open())
@@ -44,7 +67,7 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	auto filter = filter::parse_args(argc - 3, argv + 3);
+	auto filter = filter::parse_args(filter_args);
 	filter.print(std::cout);
 
 	poly_map poly_map;
@@ -54,17 +77,33 @@ int main(int argc, char *argv[])
 	way_handler way_handler(outfile, poly_map, filter);
 	node_handler node_handler(outfile, filter);
 
-	std::cout << "Building polygon index. " << std::flush;
-	process(infile, way_preprocessor);
-	std::cout << "done\n"
-			  << "Processing polygon nodes. " << std::flush;
-	process(infile, poly_node_handler);
-	std::cout << "done\n"
-			  << "Processing way and node POIs . " << std::flush;
-	process(infile, way_handler, node_handler);
-	std::cout << "done\n"
-			  << std::flush;
+	if (process_ways)
+	{
+		std::cout << "Building polygon index. " << std::flush;
+		process(infile, way_preprocessor);
+		std::cout << "done\n";
+		std::cout << "Processing polygon nodes. " << std::flush;
+		process(infile, poly_node_handler);
+		std::cout << "done\n";
+	}
+	if (process_nodes && process_ways)
+	{
+		std::cout << "Processing way and node POIs. " << std::flush;
+		process(infile, way_handler, node_handler);
+	}
+	else if (process_nodes)
+	{
+		std::cout << "Processing node POIs. " << std::flush;
+		process(infile, node_handler);
+	}
+	else if (process_ways)
+	{
+		std::cout << "Processing way POIs. " << std::flush;
+		process(infile, way_handler);
+	}
+	std::cout << "done" << std::endl;
 
 	outfile.close();
-	std::cout << "Successfully processed " << way_handler.counter() << " way POIs and " << node_handler.counter() << " node POIs.\n";
+	std::cout << "Successfully extracted " << node_handler.counter() + way_handler.counter() << " POIs: " 
+			  << node_handler.counter() << " point features and " << way_handler.counter() << " area features.\n";
 }
