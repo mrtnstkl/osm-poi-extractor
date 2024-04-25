@@ -51,8 +51,7 @@ int main(int argc, char *argv[])
 
 	way_preprocessor way_preprocessor(poly_map, filter);
 	poly_node_handler poly_node_handler(poly_map);
-	way_handler way_handler(outfile, poly_map, filter);
-	node_handler node_handler(outfile, filter);
+	poi_handler poi_handler(outfile, poly_map, filter);
 
 	std::cout << "Building polygon index. " << std::flush;
 	process(infile, way_preprocessor);
@@ -60,11 +59,12 @@ int main(int argc, char *argv[])
 			  << "Processing polygon nodes. " << std::flush;
 	process(infile, poly_node_handler);
 	std::cout << "done\n"
-			  << "Processing way and node POIs . " << std::flush;
-	process(infile, way_handler, node_handler);
+			  << "Processing way and node POIs. " << std::flush;
+	process(infile, poi_handler);
 	std::cout << "done\n"
 			  << std::flush;
 
 	outfile.close();
-	std::cout << "Successfully processed " << way_handler.counter() << " way POIs and " << node_handler.counter() << " node POIs.\n";
+	std::cout << "Successfully extracted " << poi_handler.count() << " POIs: " 
+			  << poi_handler.node_count() << " point feature and " << poi_handler.way_count() << " area features.\n";
 }
