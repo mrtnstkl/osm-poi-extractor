@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cfloat>
 #include <osmium/osm/node.hpp>
 #include <osmium/osm/way.hpp>
 
@@ -7,14 +8,14 @@
 
 struct coord
 {
-	float lat = 0.f, lon = 0.f;
+	float lat = 0, lon = 0;
 };
 
 struct poly_coord
 {
 private:
-	float lat_ = 0.f, lon_ = 0.f;
-	int count_ = 0;
+	float lat_min_ = FLT_MAX, lat_max_ = FLT_MIN;
+	float lon_min_ = FLT_MAX, lon_max_ = FLT_MIN;
 
 public:
 	void operator+=(coord pos);

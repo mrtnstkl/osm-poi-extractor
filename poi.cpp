@@ -3,19 +3,22 @@
 
 void poly_coord::operator+=(coord pos)
 {
-	lat_ += pos.lat;
-	lon_ += pos.lon;
-	++count_;
+	add(pos.lat, pos.lon);
 }
+
 void poly_coord::add(float lat, float lon)
 {
-	lat_ += lat;
-	lon_ += lon;
-	++count_;
+	lat_min_ = std::min(lat_min_, lat);
+	lat_max_ = std::max(lat_max_, lat);
+	lon_min_ = std::min(lon_min_, lon);
+	lon_max_ = std::max(lon_max_, lon);
 }
+
 coord poly_coord::get()
 {
-	return {lat_ / count_, lon_ / count_};
+	if (lat_min_ == FLT_MAX)
+		return {0, 0};
+	return {(lat_min_ + (lat_max_ - lat_min_) * .5f), (lon_min_ + (lon_max_ - lon_min_) * .5f)};
 }
 
 poi::poi(const char *name, float lat, float lon, nlohmann::json tags)
