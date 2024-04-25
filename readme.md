@@ -25,8 +25,8 @@ make
 
 ### Usage
 
-```bash
-./poi_extract <INFILE> <OUTFILE> [-p | -a] [FILTERS...]
+```
+./poi-extract <INFILE> <OUTFILE> [-p | -a] [FILTERS...]
 ```
 
 - `INFILE`: The path to the PBF file.

@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
 	if (argc < 3)
 	{
 		PRINT_USAGE(argv[0]);
-		std::cerr << "Example: ./poi_extract austria-latest.osm.pbf out.txt tourism.alpine_hut + phone natural.peak + summit:cross.yes\n";
+		std::cerr << "Example: ./poi-extract austria-latest.osm.pbf out.txt tourism.alpine_hut + phone natural.peak + summit:cross.yes\n";
 		return 1;
 	}
 
