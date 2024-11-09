@@ -38,7 +38,7 @@ def main(input_xml, input_pbf_file, output_folder):
         title = category.attrib.get('title')
         if title: 
             filters = extract_filters_from_category(category, namespace)
-            subprocess.run(["./poi_extract", input_pbf_file, f"{output_folder}/{title}.txt"] + filters)
+            subprocess.run(["./poi-extract", input_pbf_file, f"{output_folder}/{title}.txt"] + filters)
 
 
 if __name__ == "__main__":
