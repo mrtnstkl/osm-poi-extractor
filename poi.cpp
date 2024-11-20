@@ -1,4 +1,5 @@
 #include "poi.h"
+#include <osmium/osm/types.hpp>
 
 
 void poly_coord::operator+=(coord pos)
@@ -23,6 +24,11 @@ coord poly_coord::get()
 
 poi::poi(const char *name, float lat, float lon, nlohmann::json tags)
 	: json_({{"name", name}, {"lat", lat}, {"lon", lon}, {"tags", tags}})
+{
+}
+
+poi::poi(const char *name, float lat, float lon, osmium::object_id_type id, nlohmann::json tags)
+	: json_({{"name", name}, {"id", id}, {"lat", lat}, {"lon", lon}, {"tags", tags}})
 {
 }
 

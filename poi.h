@@ -2,6 +2,7 @@
 
 #include <cfloat>
 #include <osmium/osm/node.hpp>
+#include <osmium/osm/types.hpp>
 #include <osmium/osm/way.hpp>
 
 #include "json.hpp"
@@ -30,6 +31,7 @@ class poi
 
 public:
 	poi(const char* name, float lat, float lon, nlohmann::json tags = nlohmann::json::object());
+	poi(const char* name, float lat, float lon, osmium::object_id_type id, nlohmann::json tags = nlohmann::json::object());
 
 	void set_tags(const osmium::TagList &tag_list);
 

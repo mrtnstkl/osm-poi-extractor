@@ -29,14 +29,14 @@ coord poly_map::poly_position(poly_id poly_id)
 
 std::string default_formatter::node(const osmium::Node &node)
 {
-	poi poi(node.tags()["name"], node.location().lat(), node.location().lon());
+	poi poi(node.tags()["name"], node.location().lat(), node.location().lon(), node.id());
 	poi.set_tags(node.tags());
 	return poi.string();
 }
 
 std::string default_formatter::way(const osmium::Way &way, coord coordinates)
 {
-	poi poi(way.tags()["name"], coordinates.lat, coordinates.lon);
+	poi poi(way.tags()["name"], coordinates.lat, coordinates.lon, way.id());
 	poi.set_tags(way.tags());
 	return poi.string();
 }
