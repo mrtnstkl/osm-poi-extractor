@@ -26,12 +26,13 @@ make
 ### Usage
 
 ```
-./poi-extract <INFILE> <OUTFILE> [-p | -a] [FILTERS...]
+./poi-extract <INFILE> <OUTFILE> [-p | -a] [-un] [FILTERS...]
 ```
 
 - `INFILE`: The path to the PBF file.
 - `OUTFILE`: The file to where you want the extracted POIs saved. Will overwrite if file exists.
 - `-p | -a` (optional): Only process point or area features.
+- `-un` (optional): Don't exclude unnamed features.
 - `FILTERS`: The criteria for filtering the POIs. Multiple filters can be specified.
 
 ### Filter Syntax

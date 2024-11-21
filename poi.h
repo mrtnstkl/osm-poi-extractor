@@ -30,14 +30,13 @@ class poi
 	nlohmann::json json_;
 
 public:
-	poi(const char* name, float lat, float lon, nlohmann::json tags = nlohmann::json::object());
-	poi(const char* name, float lat, float lon, osmium::object_id_type id, nlohmann::json tags = nlohmann::json::object());
+	poi(float lat, float lon, nlohmann::json tags = nlohmann::json::object());
+	poi(float lat, float lon, osmium::object_id_type id, nlohmann::json tags = nlohmann::json::object());
 
 	void set_tags(const osmium::TagList &tag_list);
 
 	static poi parse_geoname(const std::string& line);
 
-	const std::string& name() const;
 	float lat() const;
 	float lon() const;
 

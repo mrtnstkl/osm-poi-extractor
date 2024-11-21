@@ -10,7 +10,7 @@
 #include "node-handler.h"
 #include "filter.h"
 
-#define PRINT_USAGE(argv0) std::cerr << "Usage: " << argv0 << " INFILE OUTFILE [-p | -a] [FILTERS...]" << std::endl
+#define PRINT_USAGE(argv0) std::cerr << "Usage: " << argv0 << " INFILE OUTFILE [-p | -a] [-un] [FILTERS...]" << std::endl
 
 template <typename... T>
 void process(osmium::io::File &file, T &...handlers)
@@ -31,6 +31,7 @@ int main(int argc, char *argv[])
 
 	std::vector<std::string> filter_args;
 	bool process_ways = false, process_nodes = false;
+	bool allow_unnamed = false;
 	for (int i = 3; i < argc; ++i)
 	{
 		std::string arg(argv[i]);
@@ -38,6 +39,8 @@ int main(int argc, char *argv[])
 			process_ways = true;
 		else if (arg == "-p")
 			process_nodes = true;
+		else if (arg == "-un")
+			allow_unnamed = true;
 		else if (arg[0] == '-')
 		{
 			std::cerr << "Invalid argument \"" << arg << '"' << std::endl;
@@ -68,6 +71,8 @@ int main(int argc, char *argv[])
 	}
 
 	auto filter = filter::parse_args(filter_args);
+	if (!allow_unnamed)
+		filter.add_rule("name");
 	filter.print(std::cout);
 
 	poly_map poly_map;

@@ -42,10 +42,17 @@ filter filter::parse_args(const std::vector<std::string>& args)
 	return filter;
 }
 
+void filter::add_rule(const rule& rule)
+{
+	rule_list_.push_back(rule);
+}
+void filter::add_rule(const key& k, const value& v)
+{
+	rule_list_.push_back({{k, v}});
+}
+
 bool filter::check(const osmium::TagList &tags) const
 {
-	if (!tags["name"])
-		return false;
 	if (rule_list_.empty())
 		return true;
 

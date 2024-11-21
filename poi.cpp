@@ -22,21 +22,27 @@ coord poly_coord::get()
 	return {(lat_min_ + (lat_max_ - lat_min_) * .5f), (lon_min_ + (lon_max_ - lon_min_) * .5f)};
 }
 
-poi::poi(const char *name, float lat, float lon, nlohmann::json tags)
-	: json_({{"name", name}, {"lat", lat}, {"lon", lon}, {"tags", tags}})
+poi::poi(float lat, float lon, nlohmann::json tags)
+	: json_({{"lat", lat}, {"lon", lon}, {"tags", tags}})
 {
 }
 
-poi::poi(const char *name, float lat, float lon, osmium::object_id_type id, nlohmann::json tags)
-	: json_({{"name", name}, {"id", id}, {"lat", lat}, {"lon", lon}, {"tags", tags}})
+poi::poi(float lat, float lon, osmium::object_id_type id, nlohmann::json tags)
+	: json_({{"id", id}, {"lat", lat}, {"lon", lon}, {"tags", tags}})
 {
+	if (tags.contains("name"))
+		json_["name"] = tags["name"];
 }
 
 void poi::set_tags(const osmium::TagList &tag_list)
 {
 	auto& tags = json_["tags"];
 	for (const auto& tag : tag_list)
+	{
 		tags[tag.key()] = tag.value();
+		if (tag.key() == std::string("name"))
+			json_["name"] = tag.value();
+	}
 }
 
 poi poi::parse_geoname(const std::string& line)
@@ -57,12 +63,7 @@ poi poi::parse_geoname(const std::string& line)
 	ss >> longitude;
 	ss.ignore();
 
-	return poi(name.c_str(), latitude, longitude);
-}
-
-const std::string& poi::name() const
-{
-	return json_["name"].template get_ref<const std::string&>();
+	return poi(latitude, longitude, {"name", name});
 }
 
 float poi::lat() const
