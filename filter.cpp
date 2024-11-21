@@ -51,8 +51,16 @@ void filter::add_rule(const key& k, const value& v)
 	rule_list_.push_back({{k, v}});
 }
 
+void filter::allow_unnamed(bool allow_unnamed)
+{
+	allow_unnamed_ = allow_unnamed;
+}
+
 bool filter::check(const osmium::TagList &tags) const
 {
+	if (!allow_unnamed_ && !tags["name"])
+		return false;
+
 	if (rule_list_.empty())
 		return true;
 
@@ -76,6 +84,8 @@ bool filter::check(const osmium::TagList &tags) const
 
 void filter::print(std::ostream &out) const
 {
+	if (allow_unnamed_)
+		out << "Unnamed POIs are allowed\n";
 	if (rule_list_.empty())
 	{
 		out << "Using empty filter" << std::endl;

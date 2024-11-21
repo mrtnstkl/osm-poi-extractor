@@ -71,8 +71,7 @@ int main(int argc, char *argv[])
 	}
 
 	auto filter = filter::parse_args(filter_args);
-	if (!allow_unnamed)
-		filter.add_rule("name");
+	filter.allow_unnamed(allow_unnamed);
 	filter.print(std::cout);
 
 	poly_map poly_map;
