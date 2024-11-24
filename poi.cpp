@@ -22,26 +22,32 @@ coord poly_coord::get()
 	return {(lat_min_ + (lat_max_ - lat_min_) * .5f), (lon_min_ + (lon_max_ - lon_min_) * .5f)};
 }
 
-poi::poi(float lat, float lon, nlohmann::json tags)
-	: json_({{"lat", lat}, {"lon", lon}, {"tags", tags}})
+std::string* poi::tag_list::operator[](const std::string &key)
+{
+	for (auto &tag : *this)
+	{
+		if (tag.first == key)
+			return &tag.second;
+	}
+	return nullptr;
+}
+
+poi::poi(float lat, float lon, tag_list tags)
+	: lat(lat), lon(lon), tags(tags)
 {
 }
 
-poi::poi(float lat, float lon, osmium::object_id_type id, nlohmann::json tags)
-	: json_({{"id", id}, {"lat", lat}, {"lon", lon}, {"tags", tags}})
+poi::poi(float lat, float lon, osmium::object_id_type id, tag_list tags)
+	: lat(lat), lon(lon), id(id), tags(tags)
 {
-	if (tags.contains("name"))
-		json_["name"] = tags["name"];
 }
 
 void poi::set_tags(const osmium::TagList &tag_list)
 {
-	auto& tags = json_["tags"];
+	tags.clear();
 	for (const auto& tag : tag_list)
 	{
-		tags[tag.key()] = tag.value();
-		if (tag.key() == std::string("name"))
-			json_["name"] = tag.value();
+		tags.emplace_back(tag.key(), tag.value());
 	}
 }
 
@@ -63,20 +69,5 @@ poi poi::parse_geoname(const std::string& line)
 	ss >> longitude;
 	ss.ignore();
 
-	return poi(latitude, longitude, {"name", name});
-}
-
-float poi::lat() const
-{
-	return json_["lat"].template get<float>();
-}
-
-float poi::lon() const
-{
-	return json_["lon"].template get<float>();
-}
-
-std::string poi::string() const
-{
-	return json_.dump();
+	return poi(latitude, longitude, {{"name", name}});
 }

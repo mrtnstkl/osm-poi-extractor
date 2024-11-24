@@ -31,16 +31,16 @@ public:
 	coord poly_position(poly_id poly_id);
 };
 
-template <typename Formatter>
-class custom_node_handler : public osmium::handler::Handler
+template <typename Sink>
+class node_handler : public osmium::handler::Handler
 {
-	std::ostream &outfile_;
+	Sink &sink_;
 	const filter &filter_;
 	uint64_t counter_ = 0;
 
 public:
-	explicit custom_node_handler(std::ostream &outfile, const filter &filter)
-		: outfile_(outfile), filter_(filter)
+	explicit node_handler(Sink &sink, const filter &filter)
+		: sink_(sink), filter_(filter)
 	{
 	}
 
@@ -48,7 +48,9 @@ public:
 	{
 		if (!filter_.check(node.tags()))
 			return;
-		outfile_ << Formatter::node(node) << '\n';
+		poi poi(node.location().lat(), node.location().lon(), node.id());
+		poi.set_tags(node.tags());
+		sink_ << poi;
 		++counter_;
 	}
 
@@ -57,15 +59,6 @@ public:
 		return counter_;
 	}
 };
-
-class default_formatter
-{
-public:
-	static std::string node(const osmium::Node &node);
-	static std::string way(const osmium::Way &way, coord coordinates);
-};
-
-using node_handler = custom_node_handler<default_formatter>;
 
 class poly_node_handler : public osmium::handler::Handler
 {
@@ -86,17 +79,17 @@ public:
 	void way(const osmium::Way &way);
 };
 
-template <typename Formatter>
-class custom_way_handler : public osmium::handler::Handler
+template <typename Sink>
+class way_handler : public osmium::handler::Handler
 {
-	std::ostream &outfile_;
+	Sink &sink_;
 	poly_map &poly_map_;
 	const filter &filter_;
 	uint64_t counter_ = 0;
 
 public:
-	explicit custom_way_handler(std::ostream &outfile, poly_map &poly_map, const filter &filter)
-		: outfile_(outfile), poly_map_(poly_map), filter_(filter)
+	explicit way_handler(Sink& sink, poly_map &poly_map, const filter &filter)
+		: sink_(sink), poly_map_(poly_map), filter_(filter)
 	{
 	}
 
@@ -104,9 +97,10 @@ public:
 	{
 		if (!filter_.check(way.tags()))
 			return;
-
 		const auto coord = poly_map_.poly_position(poly_map_.get_poly_id(way.nodes().front().ref()));
-		outfile_ << Formatter::way(way, coord) << '\n';
+		poi poi(coord.lat, coord.lon, way.id());
+		poi.set_tags(way.tags());
+		sink_ << poi;
 		++counter_;
 	}
 
@@ -115,5 +109,3 @@ public:
 		return counter_;
 	}
 };
-
-using way_handler = custom_way_handler<default_formatter>;

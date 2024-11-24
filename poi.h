@@ -4,6 +4,9 @@
 #include <osmium/osm/node.hpp>
 #include <osmium/osm/types.hpp>
 #include <osmium/osm/way.hpp>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "json.hpp"
 
@@ -25,20 +28,25 @@ public:
 };
 
 
-class poi
+struct poi
 {
-	nlohmann::json json_;
+	using tag = std::pair<std::string, std::string>;
 
-public:
-	poi(float lat, float lon, nlohmann::json tags = nlohmann::json::object());
-	poi(float lat, float lon, osmium::object_id_type id, nlohmann::json tags = nlohmann::json::object());
+	class tag_list : public std::vector<tag>
+	{
+	public:
+		using std::vector<tag>::vector;
+		std::string* operator[](const std::string &key);
+	};
+
+	float lat, lon;
+	osmium::object_id_type id;
+	tag_list tags;
+
+	poi(float lat, float lon, tag_list tags = {});
+	poi(float lat, float lon, osmium::object_id_type id, tag_list tags = {});
 
 	void set_tags(const osmium::TagList &tag_list);
 
 	static poi parse_geoname(const std::string& line);
-
-	float lat() const;
-	float lon() const;
-
-	std::string string() const;
 };

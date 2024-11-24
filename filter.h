@@ -1,5 +1,6 @@
 #pragma once
 
+#include "poi.h"
 #include <osmium/osm/tag.hpp>
 #include <vector>
 
@@ -18,6 +19,9 @@ public:
 	void add_rule(const rule& rule);
 	void add_rule(const key& k, const value& v = std::string());
 	void allow_unnamed(bool allow_unnamed);
+
 	bool check(const osmium::TagList &tags) const;
+	bool check(poi::tag_list &tags) const;
+
 	void print(std::ostream &out) const;
 };

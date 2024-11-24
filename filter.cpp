@@ -1,7 +1,10 @@
 #include "filter.h"
 
 #include <iostream>
+#include <osmium/osm/tag.hpp>
 #include <vector>
+
+#include "poi.h"
 
 filter filter::parse_args(const std::vector<std::string>& args)
 {
@@ -73,6 +76,32 @@ bool filter::check(const osmium::TagList &tags) const
 			if (tag_value == nullptr)
 				continue;
 			if (!tag.second.empty() && tag.second != tag_value)
+				continue;
+			++satisfied;
+		}
+		if (satisfied == rule.size())
+			return true;
+	}
+	return false;
+}
+
+bool filter::check(poi::tag_list &tags) const
+{
+	if (!allow_unnamed_ && !tags["name"])
+		return false;
+
+	if (rule_list_.empty())
+		return true;
+
+	for (const auto &rule : rule_list_)
+	{
+		uint satisfied = 0;
+		for (const auto &tag : rule)
+		{
+			std::string *tag_value = tags[tag.first.c_str()];
+			if (tag_value == nullptr)
+				continue;
+			if (!tag.second.empty() && tag.second != *tag_value)
 				continue;
 			++satisfied;
 		}

@@ -9,6 +9,7 @@
 
 #include "node-handler.h"
 #include "filter.h"
+#include "sink.h"
 
 #define PRINT_USAGE(argv0) std::cerr << "Usage: " << argv0 << " INFILE OUTFILE [-p | -a] [-un] [FILTERS...]" << std::endl
 
@@ -76,10 +77,12 @@ int main(int argc, char *argv[])
 
 	poly_map poly_map;
 
+	poi_sink result_sink(outfile);
+
 	way_preprocessor way_preprocessor(poly_map, filter);
 	poly_node_handler poly_node_handler(poly_map);
-	way_handler way_handler(outfile, poly_map, filter);
-	node_handler node_handler(outfile, filter);
+	way_handler way_handler(result_sink, poly_map, filter);
+	node_handler node_handler(result_sink, filter);
 
 	if (process_ways)
 	{
