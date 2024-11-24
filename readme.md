@@ -56,4 +56,4 @@ By default, the output file will have a JSON object on every line, each represen
 ...
 ```
 
-You can change this by modifying the `default_formatter` implementation in `node-handler.cpp`, or by using a `custom_node_handler` and `custom_way_handler` in the main function.
+You can change this by modifying the `poi_sink` implementation in `sink.cpp`.

@@ -42,6 +42,7 @@ struct poi
 	float lat, lon;
 	osmium::object_id_type id;
 	tag_list tags;
+	tag_list custom_tags;
 
 	poi(float lat, float lon, tag_list tags = {});
 	poi(float lat, float lon, osmium::object_id_type id, tag_list tags = {});
