@@ -186,3 +186,14 @@ void filter::print(std::ostream &out) const
 		out << std::endl;
 	}
 }
+
+void filter::print_rules(std::ostream &out) const
+{
+	for (const auto &rule : rule_list_)
+	{
+		out << "( ";
+		for (const auto &kv : rule)
+			out << kv.first << '=' << (kv.second.empty() ? "*" : kv.second) << ' ';
+		out << ") ";
+	}
+}

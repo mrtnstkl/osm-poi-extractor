@@ -49,7 +49,14 @@ void parse_config_file(const char* path, filter& f, std::vector<tagger>& ts)
 	}
 	if (config_json.contains("taggers"))
 	{
-		// todo: parse taggers
+		if (!config_json["taggers"].is_array())
+			throw std::runtime_error("Config error: taggers must be an array");
+		for (const auto& tagger_json : config_json["taggers"])
+		{
+			if (!tagger_json.is_object())
+				throw std::runtime_error("Config error: each tagger must be an object");
+			ts.emplace_back(tagger::parse_json(tagger_json));
+		}
 	}
 }
 
@@ -107,12 +114,12 @@ int main(int argc, char *argv[])
 	}
 
 	auto filter = filter::parse_args(filter_args);
+	std::vector<tagger> taggers;
 	if (!config_path.empty())
 	{
 		try
 		{
-			std::vector<tagger> todo;
-			parse_config_file(config_path.c_str(), filter, todo);
+			parse_config_file(config_path.c_str(), filter, taggers);
 		}
 		catch (const std::exception& e)
 		{
@@ -120,13 +127,22 @@ int main(int argc, char *argv[])
 			return 1;
 		}
 	}
+
 	if (allow_unnamed.has_value())
 		filter.allow_unnamed(allow_unnamed.value());
 	filter.print(std::cout);
+	if (!taggers.empty())
+		std::cout << "The following taggers will be applied to the output:\n";
+	for (size_t i = 0; i < taggers.size(); ++i)
+	{
+		std::cout << "   Tagger " << i + 1 << ": ";
+		taggers[i].print(std::cout);
+		std::cout << std::endl;
+	}
 
 	poly_map poly_map;
 
-	poi_sink result_sink(outfile);
+	poi_sink result_sink(outfile, taggers);
 
 	way_preprocessor way_preprocessor(poly_map, filter);
 	poly_node_handler poly_node_handler(poly_map);

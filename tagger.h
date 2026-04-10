@@ -12,4 +12,8 @@ class tagger
 public:
 	tagger(const std::string &key, const std::string &value, const filter &filter);
 	void tag(poi &poi) const;
+
+	static tagger parse_json(const nlohmann::json &tagger_json);
+
+	void print(std::ostream &out) const;
 };

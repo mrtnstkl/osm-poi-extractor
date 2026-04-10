@@ -29,4 +29,5 @@ public:
 	bool check(poi::tag_list &tags) const;
 
 	void print(std::ostream &out) const;
+	void print_rules(std::ostream &out) const;
 };
