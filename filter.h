@@ -2,6 +2,7 @@
 
 #include "poi.h"
 #include <osmium/osm/tag.hpp>
+#include "json.hpp"
 #include <vector>
 
 class filter
@@ -16,9 +17,13 @@ class filter
 
 public:
 	static filter parse_args(const std::vector<std::string>& args);
+	static filter parse_json(const nlohmann::json& filter_json);
 	void add_rule(const rule& rule);
 	void add_rule(const key& k, const value& v = std::string());
+	void add_rule(const std::vector<std::string>& conditions);
 	void allow_unnamed(bool allow_unnamed);
+
+	filter operator+(const filter& other) const;
 
 	bool check(const osmium::TagList &tags) const;
 	bool check(poi::tag_list &tags) const;

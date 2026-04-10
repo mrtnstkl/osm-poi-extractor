@@ -7,12 +7,12 @@ tagger::tagger(const std::string &key, const std::string &value, const filter &f
 
 void tagger::tag(poi &poi) const
 {
-	if (filter_.check(poi.custom_tags))
+	if (filter_.check(poi.osm_tags))
 	{
-		auto *field = poi.custom_tags[key_];
+		auto *field = poi.tags[key_];
 		if (field != nullptr)
 			*field = value_;
 		else
-			poi.custom_tags.emplace_back(key_, value_);
+			poi.tags.emplace_back(key_, value_);
 	}
 }

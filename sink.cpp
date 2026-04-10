@@ -22,14 +22,14 @@ std::string poi_sink::format(const poi &poi)
 		{"tags", nlohmann::json::object()},
 	};
 	auto &tags = json["tags"];
-	for (const auto& [key, value] : poi.tags)
+	for (const auto& [key, value] : poi.osm_tags)
 	{
 		if (key == "name")
 			json["name"] = value;
 		else
 			tags[key] = value;
 	}
-	for (const auto& [key, value] : poi.custom_tags)
+	for (const auto& [key, value] : poi.tags)
 		json[key] = value;
 	return json.dump();
 }

@@ -5,11 +5,15 @@
 
 #include <iostream>
 #include <fstream>
+#include <optional>
+#include <stdexcept>
+#include <string>
 #include <vector>
 
 #include "node-handler.h"
 #include "filter.h"
 #include "sink.h"
+#include "tagger.h"
 
 #define PRINT_USAGE(argv0) std::cerr << "Usage: " << argv0 << " INFILE OUTFILE [-p | -a] [-un] [FILTERS...]" << std::endl
 
@@ -19,6 +23,34 @@ void process(osmium::io::File &file, T &...handlers)
 	osmium::io::Reader reader(file);
 	osmium::apply(reader, handlers...);
 	reader.close();
+}
+
+void parse_config_file(const char* path, filter& f, std::vector<tagger>& ts)
+{
+	std::ifstream in(path);
+	nlohmann::json config_json;
+	if (!in.is_open())
+		throw std::runtime_error("Failed to open config file");
+
+	try
+	{
+		in >> config_json;
+	}
+	catch (const std::exception &e)
+	{
+		throw std::runtime_error("Failed to parse config file: " + std::string(e.what()));
+	}
+
+	if (config_json.contains("filter"))
+	{
+		if (!config_json["filter"].is_object())
+			throw std::runtime_error("Config error: filter must be an object");
+		f = f + filter::parse_json(config_json["filter"]);
+	}
+	if (config_json.contains("taggers"))
+	{
+		// todo: parse taggers
+	}
 }
 
 int main(int argc, char *argv[])
@@ -31,8 +63,9 @@ int main(int argc, char *argv[])
 	}
 
 	std::vector<std::string> filter_args;
+	std::string config_path;
 	bool process_ways = false, process_nodes = false;
-	bool allow_unnamed = false;
+	std::optional<bool> allow_unnamed = std::nullopt;
 	for (int i = 3; i < argc; ++i)
 	{
 		std::string arg(argv[i]);
@@ -42,6 +75,8 @@ int main(int argc, char *argv[])
 			process_nodes = true;
 		else if (arg == "-un")
 			allow_unnamed = true;
+		else if (arg == "-c")
+			config_path = argv[++i]; // unsafe if -c is the last argument
 		else if (arg[0] == '-')
 		{
 			std::cerr << "Invalid argument \"" << arg << '"' << std::endl;
@@ -72,7 +107,21 @@ int main(int argc, char *argv[])
 	}
 
 	auto filter = filter::parse_args(filter_args);
-	filter.allow_unnamed(allow_unnamed);
+	if (!config_path.empty())
+	{
+		try
+		{
+			std::vector<tagger> todo;
+			parse_config_file(config_path.c_str(), filter, todo);
+		}
+		catch (const std::exception& e)
+		{
+			std::cerr << "Failed to parse config file!\n" << e.what() << '\n';
+			return 1;
+		}
+	}
+	if (allow_unnamed.has_value())
+		filter.allow_unnamed(allow_unnamed.value());
 	filter.print(std::cout);
 
 	poly_map poly_map;
