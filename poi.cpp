@@ -33,22 +33,23 @@ std::string* poi::tag_list::operator[](const std::string &key)
 }
 
 poi::poi(float lat, float lon, tag_list tags)
-	: lat(lat), lon(lon), osm_tags(tags)
+	: lat(lat), lon(lon), osm_taglist(nullptr)
 {
 }
 
 poi::poi(float lat, float lon, osmium::object_id_type id, tag_list tags)
-	: lat(lat), lon(lon), id(id), osm_tags(tags)
+	: lat(lat), lon(lon), id(id), osm_taglist(nullptr)
 {
 }
 
 void poi::set_tags(const osmium::TagList &tag_list)
 {
+	/*
 	osm_tags.clear();
 	for (const auto& tag : tag_list)
 	{
 		osm_tags.emplace_back(tag.key(), tag.value());
-	}
+	}*/
 }
 
 poi poi::parse_geoname(const std::string& line)

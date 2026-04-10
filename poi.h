@@ -41,13 +41,13 @@ struct poi
 
 	float lat, lon;
 	osmium::object_id_type id;
-	tag_list osm_tags;
+	const osmium::TagList* osm_taglist;
 	tag_list tags;
 
 	poi(float lat, float lon, tag_list tags = {});
 	poi(float lat, float lon, osmium::object_id_type id, tag_list tags = {});
 
-	void set_tags(const osmium::TagList &tag_list);
+	[[deprecated]] void set_tags(const osmium::TagList &tag_list);
 
 	static poi parse_geoname(const std::string& line);
 };

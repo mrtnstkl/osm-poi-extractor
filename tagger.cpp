@@ -7,7 +7,7 @@ tagger::tagger(const std::string &key, const std::string &value, const filter &f
 
 void tagger::tag(poi &poi) const
 {
-	if (filter_.check(poi.osm_tags))
+	if (filter_.check(*poi.osm_taglist))
 	{
 		auto *field = poi.tags[key_];
 		if (field != nullptr)

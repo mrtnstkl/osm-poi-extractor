@@ -49,7 +49,7 @@ public:
 		if (!filter_.check(node.tags()))
 			return;
 		poi poi(node.location().lat(), node.location().lon(), node.id());
-		poi.set_tags(node.tags());
+		poi.osm_taglist = &node.tags();
 		sink_ << poi;
 		++counter_;
 	}
@@ -99,7 +99,7 @@ public:
 			return;
 		const auto coord = poly_map_.poly_position(poly_map_.get_poly_id(way.nodes().front().ref()));
 		poi poi(coord.lat, coord.lon, way.id());
-		poi.set_tags(way.tags());
+		poi.osm_taglist = &way.tags();
 		sink_ << poi;
 		++counter_;
 	}
